@@ -1,7 +1,7 @@
 '''
 Inserimento valori da utente (tre valori: lato, tempo, percentuale riempimento)
-Usare turtle (griglia e logica di movimento, colorazione, del gioco, ogni passo è creato con fill e goto) tkinter (interfaccia, bottoni, avvio, salvataggio, caricamento file)
-
+Usare turtle (griglia e logica di movimento, colorazione, del gioco, 
+ogni passo è creato con fill e goto) tkinter (interfaccia, bottoni, avvio, salvataggio, caricamento file)
 '''
 
 class script:
