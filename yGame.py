@@ -2,6 +2,7 @@
 Trovare una soluzione, nel file finale, di usare la classe Script con il modulo turtle con cui
 creare la griglia e i movimenti del gioco
 '''
+#suca
 import tkinter as tk
 import random
 
