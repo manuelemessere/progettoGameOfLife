@@ -4,6 +4,7 @@ creare la griglia e i movimenti del gioco
 '''
 import tkinter as tk
 import random
+'''ciao'''
 
 class Script:
     def __init__(self, rows, cols, cell_size=10, speed=1):
