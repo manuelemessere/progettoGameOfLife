@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 import turtle
 import random
 import time
@@ -91,6 +91,7 @@ class GameOfLifeGUI:
         t = int(self.entry_t.get())
         sigma = float(self.entry_sigma.get())
         self.game = GameOfLife(l, t, sigma)
+        self.l = l  # Inizializza l'attributo 'l' nella classe
 
         turtle_screen = turtle.Screen()
         turtle_screen.title('Game of Life')
@@ -166,23 +167,38 @@ class GameOfLifeGUI:
                 messagebox.showerror(
                     'Errore', 'Si è verificato un errore durante il salvataggio del file.')
 
+
     def draw_grid(self, pen, cell_size):
         pen.clear()
-        pen.penup()  # Solleva la penna
+        turtle_screen = pen.getscreen()
+        turtle_screen.tracer(0)  # Disabilita l'aggiornamento automatico dello schermo
+
+        # Disegna il riquadro delle celle
+        pen.penup()
+        x_start = -400
+        y_start = 400
+        pen.goto(x_start, y_start)
+        pen.pendown()
+        for _ in range(4):
+            pen.forward(self.l * cell_size)
+            pen.right(90)
+
         for row in range(len(self.game.grid)):
             for col in range(len(self.game.grid[row])):
-                x = col * cell_size - 400
-                y = 400 - row * cell_size
-                pen.goto(x, y)  # Sposta la tartaruga alla nuova posizione
+                x = x_start + col * cell_size + cell_size / 2
+                y = y_start - row * cell_size - cell_size / 2
+                pen.penup()
+                pen.goto(x, y)
                 if self.game.grid[row][col] == 1:
-                    pen.pendown()  # Abbassa la penna
+                    pen.pendown()
                     pen.fillcolor('black')
                     pen.begin_fill()
                     for _ in range(4):
-                        pen.forward(cell_size)
+                        pen.forward(cell_size - 1)  # Riduci la dimensione del quadrato per evitare sovrapposizioni
                         pen.right(90)
                     pen.end_fill()
-                pen.penup()  # Solleva nuovamente la penna dopo aver disegnato una cella
+
+        turtle_screen.update()  # Aggiorna manualmente lo schermo
         time.sleep(1)  # Pausa di 1 secondo tra i passi della simulazione
 
 
