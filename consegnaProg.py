@@ -14,6 +14,13 @@ Cose da correggere:
 6)
 '''
 
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import turtle
+import random
+import time
+import os #per salvare partite
+
 
 class GameOfLife:
     def __init__(self, l, t, sigma):
@@ -241,6 +248,5 @@ class GameOfLifeGUI:
             self.save_simulation()
 
         self.window.destroy()
-
 
 gui = GameOfLifeGUI()
