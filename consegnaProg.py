@@ -4,6 +4,16 @@ import turtle
 import random
 import time
 
+'''
+Cose da correggere:
+1) chiusura improvvisa del gioco dopo tot secondi, chiedendo di salvare il file
+2) errore caricamento da file, dice che c'è stato un problema 
+3) convalidazione dei dati
+4) controllo e sistemazione delle eccezioni per ogni pulsante o momento di comunicaizione con l'utente
+5) aggiungere commenti al codice
+6)
+'''
+
 
 class GameOfLife:
     def __init__(self, l, t, sigma):
@@ -60,6 +70,8 @@ class GameOfLifeGUI:
         self.window = tk.Tk()
         self.window.title('Game of Life')
 
+        self.is_closing = False  # Flag per la chiusura
+
         self.label_l = tk.Label(self.window, text='Lato (l):')
         self.label_l.pack()
         self.entry_l = tk.Entry(self.window)
@@ -83,6 +95,9 @@ class GameOfLifeGUI:
         self.button_load = tk.Button(
             self.window, text='Carica Simulazione', command=self.load_simulation)
         self.button_load.pack()
+
+        # Associa il metodo on_closing
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self.window.mainloop()
 
@@ -163,7 +178,6 @@ class GameOfLifeGUI:
                 messagebox.showerror(
                     'Errore', 'Si è verificato un errore durante il salvataggio del file.')
 
-
     def draw_grid(self, pen, cell_size):
         pen.reset()
         turtle_screen = pen.getscreen()
@@ -216,6 +230,17 @@ class GameOfLifeGUI:
 
         turtle_screen.update()
         time.sleep(1)
+
+    def on_closing(self):
+        if self.is_closing:
+            return
+
+        self.is_closing = True  # Imposta il flag di chiusura
+
+        if messagebox.askyesno('Salvataggio', 'Vuoi salvare lo stato corrente del gioco?'):
+            self.save_simulation()
+
+        self.window.destroy()
 
 
 gui = GameOfLifeGUI()
