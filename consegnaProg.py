@@ -107,10 +107,8 @@ class GameOfLifeGUI:
             self.draw_grid(turtle_pen, cell_size)
             self.game.update_generation()
 
-        if messagebox.askyesno('Salvataggio', 'Salvare lo stato finale su file?'):
-            self.save_simulation()
-
         turtle_screen.bye()
+        self.on_closing()
 
     def load_simulation(self):
         filename = tk.filedialog.askopenfilename(
@@ -141,10 +139,8 @@ class GameOfLifeGUI:
                         self.draw_grid(turtle_pen, cell_size)
                         self.game.update_generation()
 
-                    if messagebox.askyesno('Salvataggio', 'Salvare lo stato finale su file?'):
-                        self.save_simulation()
-
                     turtle_screen.bye()
+                    self.on_closing()
 
             except Exception as e:
                 messagebox.showerror(
@@ -169,37 +165,57 @@ class GameOfLifeGUI:
 
 
     def draw_grid(self, pen, cell_size):
-        pen.clear()
+        pen.reset()
         turtle_screen = pen.getscreen()
-        turtle_screen.tracer(0)  # Disabilita l'aggiornamento automatico dello schermo
+        turtle_screen.tracer(0)
 
-        # Disegna il riquadro delle celle
+        pen.hideturtle()  # Nascondi la freccia di turtle
+
+        # Disegna la griglia fissa
         pen.penup()
         x_start = -400
         y_start = 400
-        pen.goto(x_start, y_start)
-        pen.pendown()
-        for _ in range(4):
-            pen.forward(self.l * cell_size)
-            pen.right(90)
 
+        # Disegna le linee verticali
+        for col in range(self.l + 1):
+            x = x_start + col * cell_size
+            y1 = y_start
+            y2 = y_start - self.l * cell_size
+            pen.goto(x, y1)
+            pen.pendown()
+            pen.goto(x, y2)
+            pen.penup()
+
+        # Disegna le linee orizzontali
+        for row in range(self.l + 1):
+            y = y_start - row * cell_size
+            x1 = x_start
+            x2 = x_start + self.l * cell_size
+            pen.goto(x1, y)
+            pen.pendown()
+            pen.goto(x2, y)
+            pen.penup()
+
+        # Disegna le celle colorate
         for row in range(len(self.game.grid)):
             for col in range(len(self.game.grid[row])):
-                x = x_start + col * cell_size + cell_size / 2
-                y = y_start - row * cell_size - cell_size / 2
+                x = x_start + col * cell_size + 1
+                y = y_start - row * cell_size - 1
+
                 pen.penup()
                 pen.goto(x, y)
+
                 if self.game.grid[row][col] == 1:
                     pen.pendown()
                     pen.fillcolor('black')
                     pen.begin_fill()
                     for _ in range(4):
-                        pen.forward(cell_size - 1)  # Riduci la dimensione del quadrato per evitare sovrapposizioni
+                        pen.forward(cell_size - 2)
                         pen.right(90)
                     pen.end_fill()
 
-        turtle_screen.update()  # Aggiorna manualmente lo schermo
-        time.sleep(1)  # Pausa di 1 secondo tra i passi della simulazione
+        turtle_screen.update()
+        time.sleep(1)
 
 
 gui = GameOfLifeGUI()
