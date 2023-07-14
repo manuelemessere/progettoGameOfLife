@@ -1,17 +1,13 @@
-import tkinter as tk
-from tkinter import filedialog, messagebox
-import turtle
-import random
-import time
-
 '''
 Cose da correggere:
 1) chiusura improvvisa del gioco dopo tot secondi, chiedendo di salvare il file
 2) errore caricamento da file, dice che c'è stato un problema 
 3) convalidazione dei dati
 4) controllo e sistemazione delle eccezioni per ogni pulsante o momento di comunicaizione con l'utente
-5) aggiungere commenti al codice
-6)
+5) Aggiungi commenti per spiegare il funzionamento delle diverse parti del codice.
+6) Aggiungi controlli per verificare se i valori inseriti dall'utente sono validi (ad esempio, se sono numeri positivi o se il valore di sigma è compreso tra 0 e 1).
+7) Evita l'utilizzo di nomi di variabili singole come l, t, sigma poiché possono essere poco descrittivi. È preferibile utilizzare nomi più esplicativi come lato, numero_passi, percentuale_riempimento.
+8) Potresti considerare l'aggiunta di una funzione reset_simulation per ripristinare il gioco allo stato iniziale.
 '''
 
 import tkinter as tk
@@ -20,7 +16,6 @@ import turtle
 import random
 import time
 import os #per salvare partite
-
 
 class GameOfLife:
     def __init__(self, l, t, sigma):
@@ -70,6 +65,16 @@ class GameOfLife:
                 neighbor_col = (col + j + self.l) % self.l
                 count += self.grid[neighbor_row][neighbor_col]
         return count
+
+
+def test_game_of_life():
+    # Test per la classe GameOfLife
+    game = GameOfLife(10, 5, 0.5)
+    print(game.grid)
+
+    for _ in range(game.t):
+        game.update_generation()
+        print(game.grid)
 
 
 class GameOfLifeGUI:
@@ -133,7 +138,7 @@ class GameOfLifeGUI:
         self.on_closing()
 
     def load_simulation(self):
-        filename = tk.filedialog.askopenfilename(
+        filename = filedialog.askopenfilename(
             title='Carica Simulazione', filetypes=[('Text Files', '*.txt')])
         if filename:
             try:
@@ -169,7 +174,7 @@ class GameOfLifeGUI:
                     'Errore', 'Si è verificato un errore durante il caricamento del file.')
 
     def save_simulation(self):
-        filename = tk.filedialog.asksaveasfilename(
+        filename = filedialog.asksaveasfilename(
             title='Salva Simulazione', defaultextension='.txt')
         if filename:
             try:
@@ -249,4 +254,10 @@ class GameOfLifeGUI:
 
         self.window.destroy()
 
-gui = GameOfLifeGUI()
+
+if __name__ == '__main__':
+    # Esegui il test della classe GameOfLife
+    test_game_of_life()
+
+    # Crea e avvia l'interfaccia grafica
+    gui = GameOfLifeGUI()
