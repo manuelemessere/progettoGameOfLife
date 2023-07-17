@@ -59,38 +59,37 @@ class GameOfLife:
 class GameOfLifeGUI:
     def __init__(self):
         self.window = tk.Tk()
-        self.window.title('Game of Life')
+        self.window.title('Game of   Life')
 
-        self.label_l = tk.Label(self.window, text='Lato (l):')
-        self.label_l.pack()
-        self.entry_l = tk.Entry(self.window)
-        self.entry_l.pack()
-
-        self.label_t = tk.Label(self.window, text='Numero di passi (t):')
-        self.label_t.pack()
-        self.entry_t = tk.Entry(self.window)
-        self.entry_t.pack()
-
-        self.label_sigma = tk.Label(
-            self.window, text='Percentuale di riempimento (0<σ<1):')
-        self.label_sigma.pack()
-        self.entry_sigma = tk.Entry(self.window)
-        self.entry_sigma.pack()
-
-        self.button_start = tk.Button(
-            self.window, text='Avvia Simulazione', command=self.start_simulation)
-        self.button_start.pack()
-
-        self.button_load = tk.Button(
-            self.window, text='Carica Simulazione', command=self.load_simulation)
-        self.button_load.pack()
-
-        self.button_save = tk.Button(
-            self.window, text='Salva Simulazione', command=self.save_simulation
-        )
-
+        # Frame per i pulsanti
+        button_frame = tk.Frame(self.window)
+        button_frame.    pack()
+        self.button_start = tk.Button(button_frame, text='Avvia Simulazione', command=self.start_simulation)
+        self.button_start.pack(side=tk.LEFT)
+        self.button_load = tk.Button(button_frame, text='Carica Simulazione', command=self.load_simulation)
+        self.button_load.pack(side=tk.LEFT)
+        
+        # Frame per le entry e le label
+        entry_frame = tk.Frame(self.window)
+        entry_frame.pack()
+        self.label_l = tk.Label(entry_frame, text='Lato (l):')
+        self.label_l.pack(side=tk.LEFT)
+        self.entry_l = tk.Entry(entry_frame)
+        self.entry_l.pack(side=tk.LEFT)
+        self.label_t = tk.Label(entry_frame, text='Numero di passi (t):')
+        self.label_t.pack(side=tk.LEFT)
+        self.entry_t = tk.Entry(entry_frame)
+        self.entry_t.pack(side=tk.LEFT)
+        self.label_sigma = tk.Label(entry_frame, text='Percentuale di riempimento (0<σ<1):')
+        self.label_sigma.pack(side=tk.LEFT)
+        self.entry_sigma = tk.Entry(entry_frame)
+        self.entry_sigma.pack(side=tk.LEFT)
+        self.button_save = tk.Button(self.window, text='Salva Simulazione', command=self.save_simulation)
+        self.button_save.pack()
+        
         self.turtle_pen = None
 
+        self.game = None
         self.window.mainloop()
 
     def start_simulation(self):
@@ -159,22 +158,22 @@ class GameOfLifeGUI:
                 messagebox.showerror(
                     'Errore', 'Si è verificato un errore durante il caricamento del file.')
 
-    def save_document(document, folder):
-        file_path = os.path.join(folder, document)
-
-        if os.path.exists(file_path):
-            print("File con questo nome già esistente.")
-            choice = input("Vuoi sovrascrivere il file? (s/n): ")
-
-            if choice.lower() != 's':
-                return  # Esce dalla funzione se la scelta non è di sovrascrivere
-
-        with open(file_path, 'w') as file:
-            # Scrivi il contenuto del documento nel file
-            file.write(document)
-
-        print(f"Documento salvato correttamente in {file_path}")
-
+    #def save_document(document, folder):
+    #    file_path = os.path.join(folder, document)
+#
+    #    if os.path.exists(file_path):
+    #        print("File con questo nome già esistente.")
+    #        choice = input("Vuoi sovrascrivere il file? (s/n): ")
+#
+    #        if choice.lower() != 's':
+    #            return  # Esce dalla funzione se la scelta non è di sovrascrivere
+#
+    #    with open(file_path, 'w') as file:
+    #        # Scrivi il contenuto del documento nel file
+    #        file.write(document)
+#
+    #    print(f"Documento salvato correttamente in {file_path}")
+    
     def save_simulation(self):
         filename = tk.filedialog.asksaveasfilename(
             title='Salva Simulazione', defaultextension='.txt')
