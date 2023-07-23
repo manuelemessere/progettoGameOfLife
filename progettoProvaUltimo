@@ -16,11 +16,13 @@ class GameOfLife:
 
     def create_grid(self):
         grid = []
+        pdr=self.sigma * self.l * self.l
         for _ in range(self.l):
             row = []
             for _ in range(self.l):
-                if random.random() < self.sigma:
+                if random.random() < self.sigma and pdr != 0: 
                     row.append(1)
+                    pdr-=1
                 else:
                     row.append(0)
             grid.append(row)
@@ -126,6 +128,8 @@ class GameOfLifeGUI:
         self.entry_t.config(state='normal')
         self.entry_sigma.config(state='normal')
 
+        
+ 
     def draw_turtle(self):
         try:
             l = self.l
