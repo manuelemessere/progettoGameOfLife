@@ -1,0 +1,275 @@
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import turtle
+import random
+import time
+import os
+import numpy as np 
+
+class GameOfLife:
+    def __init__(self, l, t, sigma, loadedGrid = None):
+        self.l = l
+        self.t = t
+        self.sigma = sigma
+        self.grid = self.create_grid() if loadedGrid is None else loadedGrid #controlla se la griglia è già stata caricata, altrimenti la recupera
+
+    def create_grid(self):
+        grid = []
+        pdr=self.sigma * self.l * self.l #percentuale di riempimento
+        for i in range(self.l):
+            row = []
+            for j in range(self.l):
+                if random.random() < self.sigma and pdr != 0: 
+                    row.append(1)
+                    pdr-=1
+                else:
+                    row.append(0)
+            grid.append(row)
+        return grid
+
+    def update_generation(self):
+        new_grid = [[0] * self.l for i in range(self.l)] #vedere cosa fa qua
+        for row in range(self.l):
+            for col in range(self.l):
+                count = self.count_neighbors(row, col)
+                if self.grid[row][col] == 1:
+                    if count < 2 or count > 3:
+                        new_grid[row][col] = 0
+                    else:
+                        new_grid[row][col] = 1
+                else:
+                    if count == 3:
+                        new_grid[row][col] = 1
+                    else:
+                        new_grid[row][col] = 0
+        self.grid = new_grid
+
+    def count_neighbors(self, row, col):
+        count = 0
+        for i in [-1, 0, 1]:
+            for j in [-1, 0, 1]:
+                if i == 0 and j == 0:
+                    continue
+                neighbor_row = (row + i + self.l) % self.l
+                neighbor_col = (col + j + self.l) % self.l
+                count += self.grid[neighbor_row][neighbor_col]
+        return count
+
+
+class GameOfLifeGUI:
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.title('Game of Life')
+
+        self.l = None
+        self.t = None
+        self.sigma =     None
+        self.loadedSimulation = None
+
+        # Frame per i pulsanti
+        button_frame = tk.Frame(self.window, border=30)
+        button_frame.pack(side='top')
+        self.button_start = tk.Button(button_frame, text='Nuova Simulazione', command=self.new_simulation)
+        self.button_start.pack()
+        self.button_load = tk.Button(button_frame, text='Carica Simulazione', command=self.load_simulation)
+        self.button_load.pack()
+        self.button_save = tk.Button(button_frame, text='Salva Simulazione', command=self.save_simulation )
+        self.button_save.pack()
+
+        # Frame per le entry e le label
+        entry_frame = tk.Frame(self.window, border=30)
+        entry_frame.pack()
+
+        self.label_l = tk.Label(entry_frame, text='Lato (l):')
+        self.label_l.pack()
+
+        self.entry_l = tk.Entry(entry_frame)
+        self.entry_l.config(state='disabled')
+        self.entry_l.pack()
+
+        self.label_t = tk.Label(entry_frame, text='Numero di passi (t):')
+        self.label_t.pack()
+
+        self.entry_t = tk.Entry(entry_frame)
+        self.entry_t.config(state='disabled')
+        self.entry_t.pack()
+
+        self.label_sigma = tk.Label(entry_frame, text='Percentuale di riempimento (0<σ<1):')
+        self.label_sigma.pack()
+
+        self.entry_sigma = tk.Entry(entry_frame)
+        self.entry_sigma.config(state='disabled')
+        self.entry_sigma.pack()
+
+        frame_avvio_sim = tk.Frame(self.window, border=30)
+        frame_avvio_sim.pack(side='bottom')
+        self.pulsante_avvio = tk.Button(frame_avvio_sim, text="Avvia simulazione", command=self.start_simulation)
+        self.pulsante_avvio.pack()
+
+        self.turtle_pen = None
+
+        self.game = None
+
+        self.window.mainloop()
+
+#gestisce i parametri che vengono inseriti dall'utente
+    def start_simulation(self):
+        try:
+            self.l = int(self.entry_l.get()) if self.l == None else self.l #in questo modo controlla se l fa parte di new_simulation o load
+            self.t = int(self.entry_t.get())
+            self.sigma = float(self.entry_sigma.get()) if self.sigma == None else self.sigma
+            self.game = GameOfLife(self.l, self.t, self.sigma, self.loadedSimulation)
+            self.draw_turtle()
+        except ValueError as e:
+            messagebox.showerror('Errore', 'Inserisci valori validi per l, t e sigma.')
+            return
+
+    def new_simulation(self):
+        #mettendo i parametri a None fa si che a ogni volta che il pulsante viene premuto, i parametri è come se si azzerassero
+        self.l = None
+        self.t = None
+        self.sigma = None
+        self.loadedSimulation = None
+
+        self.entry_l.config(state='normal')
+        self.entry_t.config(state='normal')
+        self.entry_sigma.config(state='normal')
+
+        
+ 
+    def draw_turtle(self):
+        try:
+            l = self.l
+            t = self.t
+
+            self.turtle_screen = turtle.Screen()
+            self.turtle_screen.title('Game of Life')
+            self.turtle_screen.setup(width=800, height=800)
+
+            turtle.TurtleScreen._RUNNING = True
+            self.turtle_pen = turtle.Turtle()
+            self.turtle_pen.speed(0)
+            self.turtle_pen.hideturtle()
+
+            cell_size = 800 / l
+
+            for _ in range(t):
+                self.draw_grid(self.turtle_pen, cell_size)
+                self.game.update_generation()
+
+            
+
+            messagebox.showinfo("Fine simulazione", 'La simulazione è terminata.')
+            salvataggio = messagebox.askquestion(message="Vuoi salvare la simulazione?")
+            if salvataggio == "yes":
+                self.save_simulation()
+                self.turtle_screen.bye()
+
+
+        except IndexError as e:
+            messagebox.showerror('Errore', 'Indice fuori dai limiti durante la visualizzazione della griglia: {}'.format(str(e)))
+        except Exception as e:
+            messagebox.showerror('Errore', 'Errore durante la visualizzazione della griglia: {}'.format(str(e)))
+    
+    def load_simulation(self):
+        self.entry_t.config(state='normal')
+        
+        filename = tk.filedialog.askopenfilename(
+            title='Carica Simulazione', filetypes=[('Text Files', '*.txt')])
+        if filename:
+            if os.path.exists(filename):
+                try:
+                    file = np.loadtxt(filename, dtype=int) #il file è formato in txt è una matrice e i valori all'interno del doc sono int
+                    self.loadedSimulation = file #questa cosa è perché ad Andrea non andava di cambiare i nomi alle variabili
+
+                    aliveLen = len(file[file == 1]) #controlla i vivi della partita 
+                    self.sigma = aliveLen/len(np.asarray(file).ravel()) #si divide per recuperare il sigma
+                    self.l = len(file) #con questo si risale alla l inserita durante la partita
+
+
+                except Exception as e:
+#
+                #    #CERCARE DI CORREGGERE QUI IL PROBLEMA DELLA ENTRY_T
+                #    # messagebox.showerror('Errore', 'entry_t non è stato inserito, ora è abilitato, ripetere il caricamento')
+                    return
+
+                #controllare qui perché non va all'interno di questi except perché li gestiosce quello appena sopra essendo generico
+                except FileNotFoundError:
+                    messagebox.showerror('Errore', 'File non trovato.')
+                    return
+                except (PermissionError, IOError):
+                    messagebox.showerror('Errore', 'Errore di accesso o di I/O durante la lettura del file.')
+                    return
+
+
+
+    def save_simulation(self):
+        filename = tk.filedialog.asksaveasfilename(
+            title='Salva Simulazione', defaultextension='.txt')
+        if filename:
+
+            try:
+                with open(filename, 'w') as file:
+                    for row in self.game.grid:
+                        line = ' '.join(map(str, row))
+                        file.write(line + '\n')
+
+                messagebox.showinfo('Salvataggio', 'Simulazione salvata correttamente.')
+
+            except (PermissionError, IOError):
+                messagebox.showerror('Errore', 'Errore di accesso o di I/O durante la lettura del file.')
+                messagebox.showinfo('Salvataggio', 'Errore durante il salvataggio del file.')
+            except Exception as e:
+                messagebox.showerror('Errore', 'Si è verificato un errore durante il salvataggio del file.')
+
+    def draw_grid(self, pen, cell_size):
+        pen.reset()
+        turtle_screen = pen.getscreen()
+        turtle_screen.tracer(0)
+
+        pen.hideturtle()
+
+        pen.penup()
+        x_start = -400
+        y_start = 400
+
+        for col in range(self.l + 1):
+            x = x_start + col * cell_size
+            y1 = y_start
+            y2 = y_start - self.l * cell_size
+            pen.goto(x, y1)
+            pen.pendown()
+            pen.goto(x, y2)
+            pen.penup()
+
+        for row in range(self.l + 1):
+            y = y_start - row * cell_size
+            x1 = x_start
+            x2 = x_start + self.l * cell_size
+            pen.goto(x1, y)
+            pen.pendown()
+            pen.goto(x2, y)
+            pen.penup()
+
+        for row in range(self.l):
+            for col in range(self.l):
+                x = x_start + col * cell_size + 1
+                y = y_start - row * cell_size - 1
+
+                pen.penup()
+                pen.goto(x, y)
+
+                if self.game.grid[row][col] == 1:
+                    pen.pendown()
+                    pen.fillcolor('black')
+                    pen.begin_fill()
+                    for _ in range(4):
+                        pen.forward(cell_size - 2)
+                        pen.right(90)
+                    pen.end_fill()
+
+        turtle_screen.update()
+        time.sleep(10) 
+
+
+gui = GameOfLifeGUI()
